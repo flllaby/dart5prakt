@@ -1,8 +1,8 @@
 import 'dart:io';
-// ignore: unused_import
-import 'package:lekcia16/src/domain/models/role.dart';
 import 'package:lekcia16/src/data/Database.dart';
+import 'package:lekcia16/src/domain/models/role.dart';
 import 'package:lekcia16/src/domain/models/user.dart';
+import 'package:lekcia16/src/domain/models/group.dart';
 import 'package:lekcia16/src/domain/models/discipline.dart';
 import 'package:lekcia16/src/domain/models/enrollment.dart';
 import 'input_helper.dart';
@@ -10,41 +10,79 @@ import 'input_helper.dart';
 void runMenu(MptDatabase db) {
   while (true) {
     stdout.writeln("МПТ");
-     stdout.writeln("1 — список пользователей");
-     stdout.writeln("2 — добавить пользователя");
-     stdout.writeln("3 — удалить пользователя");
-     stdout.writeln("4 — список дисциплин");
-     stdout.writeln("5 — добавить дисциплину");
-     stdout.writeln("6 — список назначений");
-     stdout.writeln("7 — добавить назначение");
-     stdout.writeln("8 — показать всё из БД");
-     stdout.writeln("0 — выход");
-     stdout.writeln("Выберите пункт:");
+    stdout.writeln("--- Роли ---");
+    stdout.writeln("1 - список ролей");
+    stdout.writeln("2 - добавить роль");
+    stdout.writeln("3 - удалить роль");
+    stdout.writeln("--- Группы ---");
+    stdout.writeln("4 - список групп");
+    stdout.writeln("5 - добавить группу");
+    stdout.writeln("6 - удалить группу");
+    stdout.writeln("--- Пользователи ---");
+    stdout.writeln("7 - список пользователей");
+    stdout.writeln("8 - добавить пользователя");
+    stdout.writeln("9 - удалить пользователя");
+    stdout.writeln("--- Дисциплины ---");
+    stdout.writeln("10 - список дисциплин");
+    stdout.writeln("11 -добавить дисциплину");
+    stdout.writeln("12 - удалить дисциплину");
+    stdout.writeln("--- Назначения ---");
+    stdout.writeln("13 - список назначений");
+    stdout.writeln("14 - добавить назначение");
+    stdout.writeln("15 - удалить назначение");
+    stdout.writeln("--- Всё ---");
+    stdout.writeln("16 - показать всё из БД");
+    stdout.writeln("0 - выход");
+    stdout.writeln("Выберите пункт:");
 
     final choice = stdin.readLineSync()?.trim() ?? '';
     switch (choice) {
       case '1':
-        _printUsers(db);
+        _printRoles(db);
         break;
       case '2':
-        _addUser(db);
+        _addRole(db);
         break;
       case '3':
-        _deleteUser(db);
+        _deleteRole(db);
         break;
       case '4':
-        _printDisciplines(db);
+        _printGroups(db);
         break;
       case '5':
-        _addDiscipline(db);
+        _addGroup(db);
         break;
       case '6':
-        _printEnrollments(db);
+        _deleteGroup(db);
         break;
       case '7':
-        _addEnrollment(db);
+        _printUsers(db);
         break;
       case '8':
+        _addUser(db);
+        break;
+      case '9':
+        _deleteUser(db);
+        break;
+      case '10':
+        _printDisciplines(db);
+        break;
+      case '11':
+        _addDiscipline(db);
+        break;
+      case '12':
+        _deleteDiscipline(db);
+        break;
+      case '13':
+        _printEnrollments(db);
+        break;
+      case '14':
+        _addEnrollment(db);
+        break;
+      case '15':
+        _deleteEnrollment(db);
+        break;
+      case '16':
         _printAll(db);
         break;
       case '0':
@@ -55,6 +93,54 @@ void runMenu(MptDatabase db) {
     }
     stdout.writeln();
   }
+}
+
+void _printRoles(MptDatabase db) {
+  final list = db.getAllRoles();
+  if (list.isEmpty) {
+    stdout.writeln('Ролей нет. Добавь роль');
+    return;
+  }
+  for (final r in list) {
+    stdout.writeln('id: ${r.id} | ${r.name}');
+  }
+}
+
+void _addRole(MptDatabase db) {
+  final id = InputHelper.readNotEmpty('id роли: ', 'id');
+  final name = InputHelper.readNotEmpty('название роли: ', 'название');
+  db.insertRole(Role(id: id, name: name));
+  stdout.writeln('Роль сохранена.');
+}
+
+void _deleteRole(MptDatabase db) {
+  final id = InputHelper.read('id роли для удаления: ');
+  db.deleteRole(id);
+  stdout.writeln('Готово.');
+}
+
+void _printGroups(MptDatabase db) {
+  final list = db.getAllGroups();
+  if (list.isEmpty) {
+    stdout.writeln('Групп нет.');
+    return;
+  }
+  for (final g in list) {
+    stdout.writeln('id: ${g.id} | ${g.name}');
+  }
+}
+
+void _addGroup(MptDatabase db) {
+  final id = InputHelper.readNotEmpty('id группы: ', 'id');
+  final name = InputHelper.readNotEmpty('название группы: ', 'название');
+  db.insertGroup(Group(id: id, name: name));
+  stdout.writeln('Группа сохранена.');
+}
+
+void _deleteGroup(MptDatabase db) {
+  final id = InputHelper.read('id группы для удаления: ');
+  db.deleteGroup(id);
+  stdout.writeln('Готово.');
 }
 
 void _printUsers(MptDatabase db) {
@@ -93,28 +179,6 @@ void _deleteUser(MptDatabase db) {
   stdout.writeln('Готово.');
 }
 
-void _printRoles(MptDatabase db) {
-  final list = db.getAllRoles();
-  if (list.isEmpty) {
-    stdout.writeln('Ролей нет. Добавь роль');
-    return;
-  }
-  for (final r in list) {
-    stdout.writeln('id: ${r.id} | ${r.name}');
-  }
-}
-
-void _printGroups(MptDatabase db) {
-  final list = db.getAllGroups();
-  if (list.isEmpty) {
-    stdout.writeln('Групп нет.');
-    return;
-  }
-  for (final g in list) {
-    stdout.writeln('id: ${g.id} | ${g.name}');
-  }
-}
-
 void _printDisciplines(MptDatabase db) {
   final list = db.getAllDisciplines();
   if (list.isEmpty) {
@@ -132,6 +196,12 @@ void _addDiscipline(MptDatabase db) {
   final hours = InputHelper.readPositiveInt('часы: ', 'часы');
   db.insertDiscipline(Discipline(id: id, title: title, hours: hours));
   stdout.writeln('Дисциплина сохранена');
+}
+
+void _deleteDiscipline(MptDatabase db) {
+  final id = InputHelper.read('id дисциплины для удаления: ');
+  db.deleteDiscipline(id);
+  stdout.writeln('Готово.');
 }
 
 void _printEnrollments(MptDatabase db) {
@@ -160,7 +230,17 @@ void _addEnrollment(MptDatabase db) {
   stdout.writeln('Назначение сохранено');
 }
 
+void _deleteEnrollment(MptDatabase db) {
+  final id = InputHelper.read('id назначения для удаления: ');
+  db.deleteEnrollment(id);
+  stdout.writeln('Готово.');
+}
+
 void _printAll(MptDatabase db) {
+  stdout.writeln('РОЛИ');
+  _printRoles(db);
+  stdout.writeln('ГРУППЫ');
+  _printGroups(db);
   stdout.writeln('ПОЛЬЗОВАТЕЛИ');
   _printUsers(db);
   stdout.writeln('ДИСЦИПЛИНЫ');
